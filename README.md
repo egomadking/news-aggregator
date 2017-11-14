@@ -19,3 +19,16 @@ Your mission is to find and fix the issues, and make the app gloriously performa
 See /LICENSE for more.
 
 This is not a Google product.
+
+
+### App.js lines of focus
+
+* 229
+* 255
+* 261
+* 261
+* 280
+* 302
+* 312
+* 312
+* 320
