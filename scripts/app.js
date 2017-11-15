@@ -81,12 +81,12 @@ APP.Main = (function() {
 
         // Tick down. When zero we can batch in the next load.
         storyLoadCount--;
-
       }
     }
 
     // Colorize on complete.
     if (storyLoadCount === 0)
+      console.log("triggered coloring");
       colorizeAndScaleStories();
   }
 
@@ -95,6 +95,7 @@ APP.Main = (function() {
     var storyDetails = $('sd-' + details.id);
 
     // Wait a little time then show the story details.
+    
     setTimeout(showStory.bind(this, details.id), 60);
 
     // Create and append the story. A visual change...
@@ -260,44 +261,49 @@ APP.Main = (function() {
 
     // It does seem awfully broad to change all the
     // colors every time!
-    for (var s = 0; s < storyElements.length; s++) {  // potential thrash point
-
+    var storyElementsLen = storyElements.length;
+    for (var s = 0; s < storyElementsLen; s++) {
       var story = storyElements[s];
-      //querySelector returns 1st element with specified selector/(s) or null
       var score = story.querySelector('.story__score');
       var title = story.querySelector('.story__title');
 
-      // Base the scale on the y position of the score.
-      // Is this the height of the fully rendered page
-      // or just the viewport?
-      var height = main.offsetHeight;
-      console.log(height);
+      var scoreLocation = score.getBoundingClientRect();  // huge issue!
+      var scale = Math.min(1, 1 - (0.05 * ((scoreLocation.top - 170) / height)));
+      var opacity = Math.min(1, 1 - (0.5 * ((scoreLocation.top - 170) / height)));
 
-      // What does main position provide?
-      console.log(main.getBoundingClientRect());
-
-      var mainPosition = main.getBoundingClientRect();
-      var scoreLocation = score.getBoundingClientRect().top -
-          document.body.getBoundingClientRect().top;
-      var scale = Math.min(1, 1 - (0.05 * ((scoreLocation - 170) / height)));
-      var opacity = Math.min(1, 1 - (0.5 * ((scoreLocation - 170) / height)));
-
-      score.style.width = (scale * 40) + 'px';
       score.style.height = (scale * 40) + 'px';
-      score.style.lineHeight = (scale * 40) + 'px';
 
       // Now figure out how wide it is and use that to saturate it.
-      scoreLocation = score.getBoundingClientRect();
-      var saturation = (100 * ((scoreLocation.width - 38) / 2));
+      var saturation = (100 * ((scoreLocation.height - 38) / 2));
 
       score.style.backgroundColor = 'hsl(42, ' + saturation + '%, 50%)';
       title.style.opacity = opacity;
     }
   }
 
-  function remeasureOnResize() {
-    // maybe. Where all is colorizeAndScaleStories called?
-  }
+  //body and block measurements
+  var height = main.offsetHeight;
+  var bodyBound = document.body.getBoundingClientRect();
+
+
+  var throttled = false;
+
+  // resize event listener remeasures page elements on browser resize
+  window.addEventListener('resize', function() {
+    if(!throttled) {
+      height = main.offsetHeight;
+      bodyBound = document.body.getBoundingClientRect();
+    } else {
+      throttled = true;
+      
+      setTimeout(function() {
+        throttled = false;
+      }, 66);
+    }
+  });
+
+
+
   main.addEventListener('touchstart', function(evt) {
 
     // I just wanted to test what happens if touchstart
