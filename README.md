@@ -22,8 +22,4 @@ This is not a Google product.
 
 ### App.js lines of focus
 
-* 272
-* 286
-* 207 requestAnimationFrame instead
-
-1st step- Move all window-dependent measurements to a window.onresize event
+1st step- Move all window-dependent measurements to a throttled window.onresize event.
