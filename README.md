@@ -32,3 +32,4 @@ This is not a Google product.
 * 312
 * 312
 * 320
+* 207 requestAnimationFrame instead
