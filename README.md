@@ -20,16 +20,10 @@ See /LICENSE for more.
 
 This is not a Google product.
 
-
 ### App.js lines of focus
 
-* 229
-* 255
-* 261
-* 261
-* 280
-* 302
-* 312
-* 312
-* 320
+* 272
+* 286
 * 207 requestAnimationFrame instead
+
+1st step- Move all window-dependent measurements to a window.onresize event
