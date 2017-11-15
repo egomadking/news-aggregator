@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 APP.Main = (function() {
 
   var LAZY_LOAD_THRESHOLD = 300;
@@ -254,6 +255,7 @@ APP.Main = (function() {
    */
   function colorizeAndScaleStories() {
 
+    // rect containing each story on scroll page
     var storyElements = document.querySelectorAll('.story');
 
     // It does seem awfully broad to change all the
@@ -261,11 +263,19 @@ APP.Main = (function() {
     for (var s = 0; s < storyElements.length; s++) {  // potential thrash point
 
       var story = storyElements[s];
+      //querySelector returns 1st element with specified selector/(s) or null
       var score = story.querySelector('.story__score');
       var title = story.querySelector('.story__title');
 
       // Base the scale on the y position of the score.
+      // Is this the height of the fully rendered page
+      // or just the viewport?
       var height = main.offsetHeight;
+      console.log(height);
+
+      // What does main position provide?
+      console.log(main.getBoundingClientRect());
+
       var mainPosition = main.getBoundingClientRect();
       var scoreLocation = score.getBoundingClientRect().top -
           document.body.getBoundingClientRect().top;
@@ -285,6 +295,9 @@ APP.Main = (function() {
     }
   }
 
+  function remeasureOnResize() {
+    // maybe. Where all is colorizeAndScaleStories called?
+  }
   main.addEventListener('touchstart', function(evt) {
 
     // I just wanted to test what happens if touchstart
