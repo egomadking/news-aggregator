@@ -22,10 +22,11 @@ APP.Main = (function() {
 
   var stories = null;
   var storyStart = 0;
-  var count = 100;
+  var count = 50;
   var main = $('main');
   var inDetails = false;
   var storyLoadCount = 0;
+  var loaded = false;
   var localeData = {
     data: {
       intl: {
@@ -85,10 +86,10 @@ APP.Main = (function() {
     }
 
     // Colorize on complete.
-    if (storyLoadCount === 0)
-      console.log("triggered coloring");
+    if (storyLoadCount === 0) {
+      loaded = true;
       colorizeAndScaleStories();
-  }
+  }}
 
   function onStoryClick(details) {
 
@@ -258,7 +259,7 @@ APP.Main = (function() {
 
     // rect containing each story on scroll page
     var storyElements = document.querySelectorAll('.story');
-
+    
     // It does seem awfully broad to change all the
     // colors every time!
     var storyElementsLen = storyElements.length;
@@ -302,13 +303,14 @@ APP.Main = (function() {
   });
 
   main.addEventListener('scroll', function() {
-
     var header = $('header');
     var headerTitles = header.querySelector('.header__title-wrapper');
     var scrollTopCapped = Math.min(70, main.scrollTop);
     var scaleString = 'scale(' + (1 - (scrollTopCapped / 300)) + ')';
 
-    colorizeAndScaleStories();
+    if(loaded === true) {    
+      colorizeAndScaleStories();
+    }
 
     header.style.height = (156 - scrollTopCapped) + 'px';
     headerTitles.style.webkitTransform = scaleString;
@@ -326,6 +328,7 @@ APP.Main = (function() {
     if (main.scrollTop > loadThreshold)
       loadStoryBatch();
   });
+
 
   function loadStoryBatch() {
 
