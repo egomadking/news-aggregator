@@ -273,7 +273,7 @@ APP.Main = (function() {
 
       score.style.height = (scale * 40) + 'px';
 
-      // Now figure out how wide it is and use that to saturate it.
+      // Now figure out how close to the top it is and use that to saturate it.
       var saturation = (100 * ((scoreLocation.height - 38) / 2));
 
       score.style.backgroundColor = 'hsl(42, ' + saturation + '%, 50%)';
@@ -284,7 +284,6 @@ APP.Main = (function() {
   //body and block measurements
   var height = main.offsetHeight;
   var bodyBound = document.body.getBoundingClientRect();
-
 
   var throttled = false;
 
@@ -300,18 +299,6 @@ APP.Main = (function() {
         throttled = false;
       }, 66);
     }
-  });
-
-
-
-  main.addEventListener('touchstart', function(evt) {
-
-    // I just wanted to test what happens if touchstart
-    // gets canceled. Hope it doesn't block scrolling on mobiles...
-    if (Math.random() > 0.97) {
-      evt.preventDefault();
-    }
-
   });
 
   main.addEventListener('scroll', function() {
