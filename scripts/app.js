@@ -251,10 +251,32 @@ APP.Main = (function() {
     setTimeout(animate, 4);
   }
 
-  /**
-   * Does this really add anything? Can we do this kind
-   * of work in a cheaper way?
-   */
+  var storyRects = {
+    indexTop: 0,
+    storyElements: [],
+    scoreLocation: [],
+    getScoreLocation: function() {
+      //fetch all story elements
+      this.storyElements = document.querySelectorAll('.story');
+      for(var i = 0; i < this.storyElements[i]; i++) {
+        var score = this.storyElements[i];
+        var difference;
+        if( this.indexTop === 0 || this.indexTop === this.scoreLocation[0]) {
+          this.scoreLocation[i] = score.getBoundingClientRect().top;
+          // if the page is scrolled when measurements are
+          // retaken, it sets the scoreLocation relative
+          // to the location of the first score rect
+        } else {
+          difference = this.indexTop - score.getBoundingClientRect().top;
+          this.scoreLocation[i] = score.getBoundingClientRect().top + difference;
+        }
+      }
+    },
+    setIndex: function() {
+      this.indexTop = scoreLocation[0];
+    }
+  };
+  
   function colorizeAndScaleStories() {
 
     // rect containing each story on scroll page
@@ -269,6 +291,9 @@ APP.Main = (function() {
       var title = story.querySelector('.story__title');
 
       var scoreLocation = score.getBoundingClientRect();  // huge issue!
+      if(s === storyElementsLen - 1) {
+        console.log(scoreLocation.top);
+      }
       var scale = Math.min(1, 1 - (0.05 * ((scoreLocation.top - 170) / height)));
       var opacity = Math.min(1, 1 - (0.5 * ((scoreLocation.top - 170) / height)));
 
@@ -322,11 +347,15 @@ APP.Main = (function() {
     else
       document.body.classList.remove('raised');
 
+
+    // uncomment this section after I figure out how to measure story
+    // positions on the go.
+
     // Check if we need to load the next batch of stories.
-    var loadThreshold = (main.scrollHeight - main.offsetHeight -
-        LAZY_LOAD_THRESHOLD);
-    if (main.scrollTop > loadThreshold)
-      loadStoryBatch();
+    // var loadThreshold = (main.scrollHeight - main.offsetHeight -
+    //     LAZY_LOAD_THRESHOLD);
+    // if (main.scrollTop > loadThreshold)
+    //   loadStoryBatch();
   });
 
 
