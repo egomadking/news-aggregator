@@ -88,7 +88,8 @@ APP.Main = (function() {
     // Colorize on complete.
     if (storyLoadCount === 0) {
       loaded = true;
-      colorizeAndScaleStories();
+      storyRects.getScoreLocations();
+      colorizeStories(storyRects.updateScrollLocation());
   }}
 
   function onStoryClick(details) {
@@ -252,64 +253,95 @@ APP.Main = (function() {
   }
 
   var storyRects = {
-    indexTop: 0,
+    indexTop: 172,
     storyElements: [],
-    scoreLocation: [],
-    getScoreLocation: function() {
+    scoreLocations: [],
+    titles: [],
+    setIndexTop: function() {
+      this.indexTop = document.querySelector('.story__score').getBoundingClientRect().top;
+      // Scrolling while pageload makes this too sloppy.
+      // Blocking page scroll until first story is loaded
+      // and measured may work but I'm not doing it.
+    },
+
+    getScoreLocations: function() {
       //fetch all story elements
       this.storyElements = document.querySelectorAll('.story');
-      for(var i = 0; i < this.storyElements[i]; i++) {
-        var score = this.storyElements[i];
-        var difference;
-        if( this.indexTop === 0 || this.indexTop === this.scoreLocation[0]) {
-          this.scoreLocation[i] = score.getBoundingClientRect().top;
+      var storyElementsLen = this.storyElements.length;
+      var indexScore = this.storyElements[0].querySelector('.story__score').getBoundingClientRect().top;
+      console.log(indexScore);
+      for(var i = 0; i < storyElementsLen; i++) {
+        var story = this.storyElements[i];
+        var score = story.querySelector('.story__score');
+        var title = story.querySelector('.story__title');
+
+        if( indexScore === 172) {
+          // 172 is a ballpark number that ideally should be one day calculated
+          this.scoreLocations[i] = score.getBoundingClientRect().top;
+          this.indexTop = this.scoreLocations[0];
+
           // if the page is scrolled when measurements are
           // retaken, it sets the scoreLocation relative
           // to the location of the first score rect
         } else {
-          difference = this.indexTop - score.getBoundingClientRect().top;
-          this.scoreLocation[i] = score.getBoundingClientRect().top + difference;
+          indexScore = this.storyElements[0].querySelector('.story__score').getBoundingClientRect().top;
+          var difference = this.indexTop - indexScore;
+          this.scoreLocations[i] = score.getBoundingClientRect().top + difference;
         }
       }
+      console.log('getScoresLocation: ' + this.scoreLocations);
     },
-    setIndex: function() {
-      this.indexTop = scoreLocation[0];
+
+    updateScrollLocation: function() {
+      return document.querySelector('.story__score').getBoundingClientRect().top;
     }
   };
   
-  function colorizeAndScaleStories() {
-
-    // rect containing each story on scroll page
-    var storyElements = document.querySelectorAll('.story');
-    
-    // It does seem awfully broad to change all the
-    // colors every time!
-    var storyElementsLen = storyElements.length;
-    for (var s = 0; s < storyElementsLen; s++) {
-      var story = storyElements[s];
-      var score = story.querySelector('.story__score');
-      var title = story.querySelector('.story__title');
-
-      var scoreLocation = score.getBoundingClientRect();  // huge issue!
-      if(s === storyElementsLen - 1) {
-        console.log(scoreLocation.top);
+  function colorizeStories(scrollLocation) {
+    var scrollChange = scrollLocation - storyRects.indexTop;
+    console.log(scrollChange);
+    var scorePositions = [];
+    for (var s = 0; s < storyRects.storyElements.length; s++) {
+      var testPlacement;
+      scorePositions[s] = storyRects.scoreLocations[s] + scrollChange;
+      switch (true) {
+        case scorePositions[s] <= height * 0.33:
+          //something equals something;
+          testPlacement = "Top third";
+          break;
+        case height * 0.33 < scorePositions[s] && scorePositions[s] <= height:
+          //something equals something;
+          testPlacement = "Above the fold";
+          break;
+        default:
+          //something equals something;
+          testPlacement = "Below the fold";
       }
-      var scale = Math.min(1, 1 - (0.05 * ((scoreLocation.top - 170) / height)));
-      var opacity = Math.min(1, 1 - (0.5 * ((scoreLocation.top - 170) / height)));
 
-      score.style.height = (scale * 40) + 'px';
+      if(s === 0) {
+        console.log(testPlacement + " " + ' origin:' + storyRects.scoreLocations[s] + ' current: ' + scorePositions[s]); 
+      }
+      // var scale = Math.min(1, 1 - (0.05 * ((scoreLocation.top - 170) / height)));
+      //var opacity = Math.min(1, 1 - (0.5 * ((scoreLocation.top - 170) / height)));
+
+      //score.style.height = (scale * 40) + 'px';
 
       // Now figure out how close to the top it is and use that to saturate it.
-      var saturation = (100 * ((scoreLocation.height - 38) / 2));
+     // var saturation = (100 * ((scoreLocation.height - 38) / 2));
 
-      score.style.backgroundColor = 'hsl(42, ' + saturation + '%, 50%)';
-      title.style.opacity = opacity;
+      //score.style.backgroundColor = 'hsl(42, ' + saturation + '%, 50%)';
+      //title.style.opacity = opacity;
     }
   }
 
   //body and block measurements
   var height = main.offsetHeight;
   var bodyBound = document.body.getBoundingClientRect();
+
+  (function() {
+    height = main.offsetHeight;
+    bodyBound = document.body.getBoundingClientRect();
+  })();
 
   var throttled = false;
 
@@ -318,6 +350,7 @@ APP.Main = (function() {
     if(!throttled) {
       height = main.offsetHeight;
       bodyBound = document.body.getBoundingClientRect();
+      storyRects.getScoreLocations();
     } else {
       throttled = true;
       
@@ -333,8 +366,11 @@ APP.Main = (function() {
     var scrollTopCapped = Math.min(70, main.scrollTop);
     var scaleString = 'scale(' + (1 - (scrollTopCapped / 300)) + ')';
 
-    if(loaded === true) {    
-      colorizeAndScaleStories();
+    // will probably change to requestAnimationFrame
+    // when I know how to do that
+    if(loaded === true) {
+      var scrollChange = storyRects.updateScrollLocation();
+      colorizeStories(scrollChange);
     }
 
     header.style.height = (156 - scrollTopCapped) + 'px';
@@ -347,16 +383,11 @@ APP.Main = (function() {
     else
       document.body.classList.remove('raised');
 
-
-    // uncomment this section after I figure out how to measure story
-    // positions on the go.
-
-    // Check if we need to load the next batch of stories.
-    // var loadThreshold = (main.scrollHeight - main.offsetHeight -
-    //     LAZY_LOAD_THRESHOLD);
-    // if (main.scrollTop > loadThreshold)
-    //   loadStoryBatch();
-  });
+    var loadThreshold = (main.scrollHeight - main.offsetHeight -
+      LAZY_LOAD_THRESHOLD);
+    if (main.scrollTop > loadThreshold)
+      loadStoryBatch();
+    });
 
 
   function loadStoryBatch() {
