@@ -256,12 +256,20 @@ APP.Main = (function() {
     indexTop: 172,
     storyElements: [],
     scoreLocations: [],
+    scoreSaturation: [],
     titles: [],
     setIndexTop: function() {
       this.indexTop = document.querySelector('.story__score').getBoundingClientRect().top;
       // Scrolling while pageload makes this too sloppy.
       // Blocking page scroll until first story is loaded
       // and measured may work but I'm not doing it.
+    },
+    // this may not be needed as the change will resolve itself
+    // in colorizeStories()
+    setScoreSaturation: function() {
+      for(var i = 0; i < this,scoreLocations.length; i++) {
+        this.scoreSaturation[i] = 100;
+      }
     },
 
     getScoreLocations: function() {
@@ -289,7 +297,6 @@ APP.Main = (function() {
           this.scoreLocations[i] = score.getBoundingClientRect().top + difference;
         }
       }
-      console.log('getScoresLocation: ' + this.scoreLocations);
     },
 
     updateScrollLocation: function() {
@@ -299,28 +306,36 @@ APP.Main = (function() {
   
   function colorizeStories(scrollLocation) {
     var scrollChange = scrollLocation - storyRects.indexTop;
-    console.log(scrollChange);
     var scorePositions = [];
+    var scoreNewSaturation = [];
+
     for (var s = 0; s < storyRects.storyElements.length; s++) {
       var testPlacement;
       scorePositions[s] = storyRects.scoreLocations[s] + scrollChange;
       switch (true) {
         case scorePositions[s] <= height * 0.33:
-          //something equals something;
+          scoreNewSaturation[s] = 100;
           testPlacement = "Top third";
           break;
         case height * 0.33 < scorePositions[s] && scorePositions[s] <= height:
-          //something equals something;
+          scoreNewSaturation[s] = 50;
           testPlacement = "Above the fold";
           break;
         default:
-          //something equals something;
+        scoreNewSaturation[s] = 10;
           testPlacement = "Below the fold";
       }
 
-      if(s === 0) {
-        console.log(testPlacement + " " + ' origin:' + storyRects.scoreLocations[s] + ' current: ' + scorePositions[s]); 
+      if( scoreNewSaturation[s] !== storyRects.scoreSaturation[s]) {
+        storyRects.storyElements[s].style.backgroundColor = 'hsl(42, '+ scoreNewSaturation[s] + '%, 50%)';
+        storyRects.scoreSaturation[s] = scoreNewSaturation[s];
+        console.log(storyRects.storyElements[s].style.backgroundColor);
       }
+
+      // if(s === 0) {
+      //   console.log(testPlacement + " " + ' origin:' + storyRects.scoreLocations[s] + ' current: ' + scorePositions[s]); 
+      // }
+
       // var scale = Math.min(1, 1 - (0.05 * ((scoreLocation.top - 170) / height)));
       //var opacity = Math.min(1, 1 - (0.5 * ((scoreLocation.top - 170) / height)));
 
