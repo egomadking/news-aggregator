@@ -256,7 +256,7 @@ APP.Main = (function() {
     indexTop: 172,
     storyElements: [],
     scoreLocations: [],
-    scoreSaturation: [],
+    scoreSat: [],
     titles: [],
     setIndexTop: function() {
       this.indexTop = document.querySelector('.story__score').getBoundingClientRect().top;
@@ -268,7 +268,7 @@ APP.Main = (function() {
     // in colorizeStories()
     setScoreSaturation: function() {
       for(var i = 0; i < this,scoreLocations.length; i++) {
-        this.scoreSaturation[i] = 100;
+        this.scoreSat[i] = 100;
       }
     },
 
@@ -307,45 +307,35 @@ APP.Main = (function() {
   function colorizeStories(scrollLocation) {
     var scrollChange = scrollLocation - storyRects.indexTop;
     var scorePositions = [];
-    var scoreNewSaturation = [];
+    var scoreNewSat = [];
 
     for (var s = 0; s < storyRects.storyElements.length; s++) {
       var testPlacement;
       scorePositions[s] = storyRects.scoreLocations[s] + scrollChange;
       switch (true) {
         case scorePositions[s] <= height * 0.33:
-          scoreNewSaturation[s] = 100;
+          scoreNewSat[s] = 100;
           testPlacement = "Top third";
           break;
         case height * 0.33 < scorePositions[s] && scorePositions[s] <= height:
-          scoreNewSaturation[s] = 50;
+          // need to do some math to create a 
+          // gradient from 100 to 10, decreasing
+          // as the scorePosition increases
+          scoreNewSat[s] = (((-90/67)*scorePositions[s]) + 74);
+          console.log(scoreNewSat[10]);
           testPlacement = "Above the fold";
           break;
         default:
-        scoreNewSaturation[s] = 10;
+        scoreNewSat[s] = 10;
           testPlacement = "Below the fold";
       }
 
-      if( scoreNewSaturation[s] !== storyRects.scoreSaturation[s]) {
-        storyRects.storyElements[s].style.backgroundColor = 'hsl(42, '+ scoreNewSaturation[s] + '%, 50%)';
-        storyRects.scoreSaturation[s] = scoreNewSaturation[s];
+      if( scoreNewSat[s] !== storyRects.scoreSat[s]) {
+        storyRects.storyElements[s].querySelector('.story__score').style.backgroundColor = 'hsl(42, '+ scoreNewSat[s] + '%, 50%)';
+        storyRects.scoreSat[s] = scoreNewSat[s];
         console.log(storyRects.storyElements[s].style.backgroundColor);
       }
 
-      // if(s === 0) {
-      //   console.log(testPlacement + " " + ' origin:' + storyRects.scoreLocations[s] + ' current: ' + scorePositions[s]); 
-      // }
-
-      // var scale = Math.min(1, 1 - (0.05 * ((scoreLocation.top - 170) / height)));
-      //var opacity = Math.min(1, 1 - (0.5 * ((scoreLocation.top - 170) / height)));
-
-      //score.style.height = (scale * 40) + 'px';
-
-      // Now figure out how close to the top it is and use that to saturate it.
-     // var saturation = (100 * ((scoreLocation.height - 38) / 2));
-
-      //score.style.backgroundColor = 'hsl(42, ' + saturation + '%, 50%)';
-      //title.style.opacity = opacity;
     }
   }
 
