@@ -321,7 +321,9 @@ APP.Main = (function() {
           // need to do some math to create a 
           // gradient from 100 to 10, decreasing
           // as the scorePosition increases
-          scoreNewSat[s] = (((-90/67)*scorePositions[s]) + 74);
+
+          //this is all messed up
+          scoreNewSat[s] = (-(((-37/90)*scorePositions[s]) - 74));
           console.log(scoreNewSat[10]);
           testPlacement = "Above the fold";
           break;
