@@ -315,21 +315,21 @@ APP.Main = (function() {
           scoreNewSat[s] = 100;
           break;
         case height * 0.33 < scorePositions[s] && scorePositions[s] <= height:
-
-          //this is all messed up
-          scoreNewSat[s] = ((-44/90)*scorePositions[s]+ (height * 0.36));
+          scoreNewSat[s] = 50;
           break;
         default:
         scoreNewSat[s] = 10;
       }
       if((scoreNewSat[s] !== undefined) && (scoreNewSat[s] !== 10) && (scoreNewSat[s] !==100)) {
-        console.log(scoreNewSat[s] + ' index: ' + s);
+        //console.log(scoreNewSat[s] + ' index: ' + s);
       }
       if( scoreNewSat[s] !== storyRects.scoreSat[s]) {
         storyRects.storyElements[s].querySelector('.story__score').style.backgroundColor = 'hsl(42, '+ scoreNewSat[s] + '%, 50%)';
         storyRects.scoreSat[s] = scoreNewSat[s];
       }
-
+      if(scorePositions[5] !== undefined) {
+        console.log(scorePositions[5]);
+      }
     }
   }
 
