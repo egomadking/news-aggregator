@@ -22,7 +22,7 @@ APP.Main = (function() {
 
   var stories = null;
   var storyStart = 0;
-  var count = 50;
+  var count = 20; //default 50 (uncomment lay loader code in event listener)
   var main = $('main');
   var inDetails = false;
   var storyLoadCount = 0;
@@ -277,7 +277,6 @@ APP.Main = (function() {
       this.storyElements = document.querySelectorAll('.story');
       var storyElementsLen = this.storyElements.length;
       var indexScore = this.storyElements[0].querySelector('.story__score').getBoundingClientRect().top;
-      console.log(indexScore);
       for(var i = 0; i < storyElementsLen; i++) {
         var story = this.storyElements[i];
         var score = story.querySelector('.story__score');
@@ -310,32 +309,25 @@ APP.Main = (function() {
     var scoreNewSat = [];
 
     for (var s = 0; s < storyRects.storyElements.length; s++) {
-      var testPlacement;
       scorePositions[s] = storyRects.scoreLocations[s] + scrollChange;
       switch (true) {
         case scorePositions[s] <= height * 0.33:
           scoreNewSat[s] = 100;
-          testPlacement = "Top third";
           break;
         case height * 0.33 < scorePositions[s] && scorePositions[s] <= height:
-          // need to do some math to create a 
-          // gradient from 100 to 10, decreasing
-          // as the scorePosition increases
 
           //this is all messed up
-          scoreNewSat[s] = (-(((-37/90)*scorePositions[s]) - 74));
-          console.log(scoreNewSat[10]);
-          testPlacement = "Above the fold";
+          scoreNewSat[s] = ((-44/90)*scorePositions[s]+ (height * 0.36));
           break;
         default:
         scoreNewSat[s] = 10;
-          testPlacement = "Below the fold";
       }
-
+      if((scoreNewSat[s] !== undefined) && (scoreNewSat[s] !== 10) && (scoreNewSat[s] !==100)) {
+        console.log(scoreNewSat[s] + ' index: ' + s);
+      }
       if( scoreNewSat[s] !== storyRects.scoreSat[s]) {
         storyRects.storyElements[s].querySelector('.story__score').style.backgroundColor = 'hsl(42, '+ scoreNewSat[s] + '%, 50%)';
         storyRects.scoreSat[s] = scoreNewSat[s];
-        console.log(storyRects.storyElements[s].style.backgroundColor);
       }
 
     }
@@ -392,8 +384,8 @@ APP.Main = (function() {
 
     var loadThreshold = (main.scrollHeight - main.offsetHeight -
       LAZY_LOAD_THRESHOLD);
-    if (main.scrollTop > loadThreshold)
-      loadStoryBatch();
+    // if (main.scrollTop > loadThreshold)
+    //   loadStoryBatch();
     });
 
 
