@@ -22,7 +22,7 @@ APP.Main = (function() {
 
   var stories = null;
   var storyStart = 0;
-  var count = 20; //default 50 (uncomment lay loader code in event listener)
+  var count = 50;
   var main = $('main');
   var inDetails = false;
   var storyLoadCount = 0;
@@ -90,7 +90,8 @@ APP.Main = (function() {
       loaded = true;
       storyRects.getScoreLocations();
       colorizeStories(storyRects.updateScrollLocation());
-  }}
+  }
+}
 
   function onStoryClick(details) {
 
@@ -308,6 +309,8 @@ APP.Main = (function() {
     var scorePositions = [];
     var scoreNewSat = [];
 
+    var tester = 10;
+
     for (var s = 0; s < storyRects.storyElements.length; s++) {
       scorePositions[s] = storyRects.scoreLocations[s] + scrollChange;
       switch (true) {
@@ -315,20 +318,14 @@ APP.Main = (function() {
           scoreNewSat[s] = 100;
           break;
         case height * 0.33 < scorePositions[s] && scorePositions[s] <= height:
-          scoreNewSat[s] = 50;
+          scoreNewSat[s] = Math.round(100*((height - scorePositions[s])/(0.67*height)) + (10*(1-((height - scorePositions[s])/(0.67*height)))));
           break;
         default:
         scoreNewSat[s] = 10;
       }
-      if((scoreNewSat[s] !== undefined) && (scoreNewSat[s] !== 10) && (scoreNewSat[s] !==100)) {
-        //console.log(scoreNewSat[s] + ' index: ' + s);
-      }
       if( scoreNewSat[s] !== storyRects.scoreSat[s]) {
         storyRects.storyElements[s].querySelector('.story__score').style.backgroundColor = 'hsl(42, '+ scoreNewSat[s] + '%, 50%)';
         storyRects.scoreSat[s] = scoreNewSat[s];
-      }
-      if(scorePositions[5] !== undefined) {
-        console.log(scorePositions[5]);
       }
     }
   }
@@ -360,18 +357,24 @@ APP.Main = (function() {
   });
 
   main.addEventListener('scroll', function() {
-    var header = $('header');
-    var headerTitles = header.querySelector('.header__title-wrapper');
-    var scrollTopCapped = Math.min(70, main.scrollTop);
-    var scaleString = 'scale(' + (1 - (scrollTopCapped / 300)) + ')';
-
-    // will probably change to requestAnimationFrame
-    // when I know how to do that
+    
+    requestAnimationFrame(scaleHeader);
     if(loaded === true) {
       var scrollChange = storyRects.updateScrollLocation();
       colorizeStories(scrollChange);
     }
 
+    var loadThreshold = (main.scrollHeight - main.offsetHeight -
+      LAZY_LOAD_THRESHOLD);
+    if (main.scrollTop > loadThreshold)
+      requestAnimationFrame(loadStoryBatch);
+    });
+  
+  function scaleHeader() {
+    var header = $('header');
+    var headerTitles = header.querySelector('.header__title-wrapper');
+    var scrollTopCapped = Math.min(70, main.scrollTop);
+    var scaleString = 'scale(' + (1 - (scrollTopCapped / 300)) + ')';
     header.style.height = (156 - scrollTopCapped) + 'px';
     headerTitles.style.webkitTransform = scaleString;
     headerTitles.style.transform = scaleString;
@@ -381,12 +384,7 @@ APP.Main = (function() {
       document.body.classList.add('raised');
     else
       document.body.classList.remove('raised');
-
-    var loadThreshold = (main.scrollHeight - main.offsetHeight -
-      LAZY_LOAD_THRESHOLD);
-    // if (main.scrollTop > loadThreshold)
-    //   loadStoryBatch();
-    });
+  }
 
 
   function loadStoryBatch() {
